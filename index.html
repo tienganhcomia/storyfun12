@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ms. Mia's English Class</title>
+    <style>
+        :root {
+            --bg-color: #fdf5e6;
+            --accent-color: #ff9a9e;
+            --text-color: #4a4a4a;
+            --highlight-color: #fff176;
+            --button-bg: #ffffff;
+            --active-button: #8ed1fc;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(#ffe4b5 10%, transparent 10%),
+                linear-gradient(135deg, #fdf5e6 0%, #ffecd2 100%);
+            background-size: 30px 30px, 100% 100%;
+            color: var(--text-color);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Sidebar Navigation */
+        #sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            border-right: 2px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        #logo-container {
+            position: sticky;
+            top: 0;
+            padding: 20px 10px;
+            text-align: center;
+            background: transparent;
+        }
+
+        #logo-container img {
+            max-width: 160px;
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            color: #d4a373;
+            text-align: center;
+            margin: 5px 0 15px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #button-list-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 15px 20px 15px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .story-btn {
+            width: 100%;
+            background: var(--button-bg);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-color);
+            transition: all 0.2s ease;
+            text-align: left;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .story-btn.active {
+            background: var(--active-button);
+            color: white;
+            border-color: #0693e3;
+        }
+
+        /* Main Reading Area */
+        #main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            overflow-y: auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .instruction {
+            text-align: center;
+            font-weight: bold;
+            color: #b5835a;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        #reading-box {
+            background: rgba(255, 255, 255, 0.92);
+            flex: 1;
+            border-radius: 35px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            line-height: 1.7;
+            font-size: 2.1rem;
+            overflow-y: auto;
+            border: 6px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .word {
+            display: inline-block;
+            cursor: pointer;
+            padding: 0 4px;
+            border-radius: 8px;
+            transition: background 0.1s;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .word.playing {
+            background: var(--highlight-color) !important;
+            transform: scale(1.1);
+        }
+
+        /* Mobile Layout Adjustments */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            #sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 35vh;
+                border-right: none;
+                border-bottom: 2px solid white;
+            }
+            #logo-container { padding: 10px; }
+            #logo-container img { max-width: 100px; }
+            h2 { font-size: 0.95rem; margin: 0 0 5px 0; }
+            #button-list-wrapper {
+                display: flex;
+                flex-direction: row;
+                overflow-x: auto;
+                padding: 10px;
+                gap: 10px;
+            }
+            .story-btn {
+                width: auto;
+                white-space: nowrap;
+                margin-bottom: 0;
+                padding: 8px 12px;
+            }
+            #main-content { padding: 15px; }
+            #reading-box { font-size: 1.5rem; padding: 20px; border-radius: 20px; }
+            .instruction { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav id="sidebar">
+        <div id="logo-container">
+            <img src="logo.png" alt="Ms. Mia Logo">
+        </div>
+        <h2>Storyfun 1 & 2</h2>
+        <div id="button-list-wrapper">
+            <div id="button-list"></div>
+        </div>
+    </nav>
+
+    <main id="main-content">
+        <div class="instruction">💻 Click a word | 📱 Double-tap a word</div>
+        <div id="reading-box"></div>
+    </main>
+
+    <script>
+        const stories = [
+            // --- Set 1 ---
+            { 
+                title: "1. Counting", 
+                text: "PART 1\nHi!\nMy name’s Ben and I’m your friend.\nAnd this is Sam.\nSam is my dog.\nSam plays with my shoes.\nSam?\nMy shoes, please!\nMy name’s Ben and I’m your friend.\n1, 2, 3\nCount with me!\n\nPART 2\n4, 5, 6, 7\nSilly Sam!\nMy blue shoe, please!\nGood dog, Sam.\nWell done!\nRight!\n8, 9, 10.\nLet’s count again.\n\nPART 3\n1, 2, 3\nThat’s right!\nWith me!\n4, 5, 6, 7 and 8.\nThat’s really, really, really great!\n\nPART 4\nOh, and then, It’s 9 and ...?\nSilly Sam.\nMy red boot, please!\nGood dog, Sam.\nWell done!\nSo ... How many?\nIt’s 9 and 10.\nGoodbye!" 
+            },
+            { 
+                title: "2. Come and play", 
+                text: "PART 1\nHi!\nI’m Anna.\nI’ve got two cars and four guitars!\nCome and play with me today!\nI’ve got three kites and a yellow bike.\nCome and play with me today!\n\nPART 2\nHi!\nI’m Tom.\nI’ve got some bats and some funny red hats!\nCome and play with me today!\nI’ve got five ducks and two big trucks.\nCome and play with me today!\n\nPART 3\nMy name’s Sue.\nI’ve got a doll.\nAnd look!\nHere’s my blue book!\nMy name’s Pat.\nI’ve got a lizard and lots of pears and here’s my happy teddy bear.\nCome and play with us today!\n\nPART 4\nWe’ve got lots of pets, too.\nThey can play with you!\nWe’ve got a cat, a dog and three green frogs.\nSo clap your hands and come and play.\nCome and play with us today!" 
+            },
+            { 
+                title: "3. Kim’s birthday", 
+                text: "PART 1\nIt’s my birthday today!\nHooray!\nHooray!\nThis is my mum and dad.\nThis is my brother, Dan.\nThis is my sister.\nHer name’s Jill!\nAnd Grandpa’s here, too!\nMy grandpa’s name is Bill.\nI love him!\n\nPART 2\nMum: “Let’s have a party!”\nGrandpa Bill: “Let’s make a big cake!”\nDan: “Let’s have some fun!”\nDad: “Let’s sing lots of songs!”\nJill: “Let’s get some balloons!”\nIt’s my birthday today!\nHooray!\nHooray!\nI’ve got lots of cards and a new box of paints.\nThese are my presents, too!\nLook!\nWow!\nThank you!\n\nPART 3\nIs this a bat?\nNo, it’s a sun hat.\nIs this a clock?\nNo, they’re some socks.\nIs this a toy tiger?\nNo, it’s a toy spider!\nIt’s my birthday today!\nHooray!\nHooray!\nIt’s my party now.\nWe’ve got lemonade and ice cream!\nBut where’s my toy spider?\nIt’s on Grandpa’s head!\n\nPART 4\nThis cake is great!\nAnd now I’m eight!\nHow old are you?\nAre you eight, too?\nThank you, Mum and Dad and Jill.\nAnd thank you, Dan and Grandpa Bill!" 
+            },
+            { 
+                title: "4. Hugo’s school bag", 
+                text: "PART 1\nIt’s a school day today!\nRight!\nWhat’s in my bag?\nMy new crayons and paints.\nMy old eraser and phone.\nBut where is my ruler?\nOh!\nThere, with my book.\nAnd where is my pen?\nOh!\nThere it is.\nGood!\n\nPART 2\nLook at the clock!\nBye, Mum.\nBye, Sue.\nI’ve got my school bag.\nSee you!\nRun to the bus stop.\nQuick!\nQuick!\nAnd jump on the bus.\nHi, Grace!\nHello, Nick!\n\nPART 3\nWe love our new playground.\nLet’s have some fun.\nHere!\nCatch this ball.\nAnd jump and run!\nThis is my classroom.\nAnd this is Miss Rice.\nShe’s our new teacher.\nShe’s really nice.\nWe’re making a poster.\nRight!\nWhat’s in my bag?\nMy new crayons and paints.\nMy old eraser and phone.\n\nPART 4\nBut where is my ruler?\nIt’s not here with my book.\nAnd where is my pen?\nIt’s not here.\nOh no!\nLook!\n‘Don’t worry!’ says Mark.\n‘Here you are!\nHave my ruler.\nI’ve got two!\nThey’re for you.’\n‘It’s OK!’ says May.\n‘Here you are!\nHave my pen.\nI’ve got three!\nFor you and me!’\n‘Thank you!\nThank you!’" 
+            },
+            { 
+                title: "5. What am I?", 
+                text: "PART 1\n“Excuse me!\nWhat am I?\nCan you tell me, please?”\n“Well, you aren’t an elephant.\nI’m an elephant and my body is very big.\nYour body is very small.\nHave you got big ears?”\n“No, I haven’t.”\n“Well, elephants have got big ears.\nNo.\nYou aren’t an elephant.\nSorry!”\n\nPART 2\n“Excuse me!\nWhat am I?\nCan you tell me, please?”\n“Well, you aren’t a crocodile.\nI’m a crocodile and I’ve got lots of long white, teeth.\nYou haven’t got teeth.\nHave you got a long tail?”\n“No, I haven’t.\nMy tail is short.”\n“Well, crocodiles have got long tails.\nNo.\nYou aren’t a crocodile.\nSorry!”\n\nPART 3\n“Excuse me!\nWhat am I?\nPlease tell me!”\n“Well, you aren’t a monkey.\nI’m a monkey and I’ve got a funny face.\nYou haven’t got a funny face!\nCan you climb trees?”\n“No, I can’t!”\n“Well, monkeys can climb trees.\nNo.\nYou aren’t a monkey.\nSorry!”\n\nPART 4\n“Excuse me!\nWhat am I?\nI’m not an elephant.\nI’m not a crocodile and I’m not a monkey.\nI’ve got two brown wings and two yellow feet.”\n“Me too!”\n“I can swim.\nI can walk and I can fly.”\n“Me too!\nYou’re a duck, you see!\nYou’re a duck like me!”\n“I’m a DUCK!\nYippee!”" 
+            },
+            { 
+                title: "6. Grandma’s glasses", 
+                text: "PART 1\nGrandma is at Jill’s house.\nShe wants to go home now, but she can’t find her glasses.\n‘I’ve got my handbag and I’ve got my coat.\nI’ve got my toothbrush and I’ve got my bike.\nBut where are my glasses?’ asks Grandma.\n‘I can help!’\n‘Let’s look on the table and in the cupboard, too!’ says Tom.\n‘No!\nYour glasses aren’t here!\nBut look!\nWow!\nMy robot!\nGreat!’\n\nPART 2\n‘Let’s look under the TV and next to the computer,’ says Jill.\n‘No!\nThey aren’t here!\nBut look!\nWow!\nMy old ruler!\nGreat!’\n‘Let’s look next to the armchairs and under the cushions,’ says Mum.\n‘No!\nYour glasses aren’t here!\nBut look!\nWow!\nMy red socks!\nGreat!’\n\nPART 3\n‘Oh dear!\nWith no glasses, I can’t ride my bike!’ Grandma says.\n‘We can drive you home!’ Dad says.\n‘Can we come too?’ ask Tom and Jill.\n‘Yes, you can!’ says Dad.\n\nPART 4\n‘Thank you,’ says Grandma.\n‘Wow!\nIt’s hot in here!’\n‘Grandma!’ Tom and Jill say, ‘Your glasses are on your head!’\n‘Fantastic!’ says Grandma.\n‘Now I can ride home.’" 
+            },
+            { 
+                title: "7. Let’s go there now!", 
+                text: "PART 1\nMatt and Alice live next to the beach in Sea Street.\nIn the morning, Matt sees Alice at the bus stop.\nMatt and Alice like lots of sports.\n‘Hi, Alice!’ Matt says.\n‘I’ve got badminton today.\nI love badminton.\nDo you?’\n‘No,’ Alice answers.\n‘But I really like horse riding!’\n‘I don’t,’ says Matt.\n‘Bye!\nSee you!’\n\nPART 2\nAt lunchtime, Alice sees Matt at the sports shop.\n‘Hi again, Matt!’ Alice says.\n‘I love tennis.\nDo you?’\n‘Tennis?\nNo!\nBut baseball is a great sport!’ says Matt.\n‘Do you like baseball?’\n‘No, I don’t,’ says Alice.\n‘Bye!\nSee you!’\n\nPART 3\nIn the afternoon, Matt sees Alice in the playground.\n‘Hello again!’ Matt says.\n‘I love skateboarding!\nDo you?’\n‘Yes, I do!’ says Alice.\n‘Which is your skateboard, Matt?’\n‘The red one,’ answers Matt.\n‘And which is your skateboard, Alice?’\n‘The grey one,’ Alice answers.\n‘Where do you go skateboarding?’\n‘In the park!’ says Matt.\n‘Me too!’ says Alice.\n‘Let’s go and skateboard there!’ says Matt.\n‘OK,’ says Alice.\n‘Yes!\nLet’s go there now!’\n\nPART 4\n‘My father and I like fishing here, too.\nDo you?’ asks Alice.\n‘No, I don’t,’ answers Matt.\n‘I don’t like fishing!’\nOhhhhh ...\n‘Do you like swimming, Matt?’ asks Alice.\n‘Yes, I do!’ says Matt!" 
+            },
+            { 
+                title: "8. Not today!", 
+                text: "PART 1\nDan and his sister, Lucy, are with their mother in Mr Chip’s food shop.\n‘Can we have some oranges or some nice red grapes, Mum?’\n‘Not today, Dan.\nWe’ve got a lot of fruit at home.’\n‘I love apple pie, Mum!’\n‘Me too!\nBut no apple pie today.’\n\nPART 2\n‘Wow!\nMeatballs!’\n‘Not today, Lucy.’\n‘Let’s get some tomatoes!’\n‘We can’t, but let’s get some carrots.’\n‘What’s this?\nWhat are these?’\n‘Sorry, Mum!’\nLucy and her brother are in Miss Coat’s clothes shop now.\n\nPART 3\n‘I love this watch!’\n‘Can I have one of these T-shirts?’\n‘No, Lucy and no, Dan.’\n‘Look!\nShorts!\nThey’re so cool!’\n‘And can I have those jeans?’\n‘No.\nBut we can get two new white shirts for school.\nCome on!\nLet’s go!’\n‘What’s this?\nWhat are these?’\n‘Sorry!’" 
+            },
+
+            // --- Storyfun 2 ---
+            { 
+                title: "9. Our funny home", 
+                text: "PART 1\nOur home is really funny.\nThe window is under the cupboard.\nOur radio is in Mum’s old hat.\nThere are three chairs in front of those flowers and ten oranges next to the cat … in our kitchen!\n\nPART 2\nMy grandma’s sleeping in the bath again!\nLook!\nShe’s behind her funny old door.\nFive ducks are enjoying the water and can you see those four boats on the floor … in our bathroom?\nThe TV is between two big bookcases.\nMy pet lizard lives under it.\nOh … there are nine balloons on Dad’s armchair today.\nAnd where is our baby hippo?\nIn our living room!\n\nPART 3\nTwo clocks are behind that painting of frogs.\nMy football is here!\nIt’s not in our hall.\nGrandpa’s teeth are on our big table again.\nAnd can you see the tree on the wall … in our dining room?\nMy lamp is in front of six boxes.\nThere are 11 new books on my head.\nOur green snake sleeps on that computer and there are 12 shoes under my bed … in my bedroom!\n\nPART 4\nOur home is old and we have lots of pets.\nMum says, ‘It’s like a zoo!’\n‘But I love my family and I love my home!’\nWould you like to live here too?" 
+            },
+            { 
+                title: "10. Jill’s jellyfish", 
+                text: "Nick, Sue and Ben are friends.\nThey’re playing a game.\nNick is choosing an animal and his friends, Sue and Ben, are asking questions.\n‘How many legs have you got?’ asks Sue.\n‘Four!’ says Nick.\n‘What colour are you?’ asks Ben.\n‘One of my colours is white,’ says Nick.\nBen’s little sister, Jill, wants to play too.\n‘Can I try, please?’ she asks.\n‘You’re a cow!’\n‘No, Jill.’\n‘Well, you’re a horse or a polar bear!’\n‘No, Jill.’\n‘Then you’re a zebra!’ says Ben.\n‘That’s right!’ says Nick.\n‘Now you choose an animal, Ben.’" 
+            },
+            { 
+                title: "11. Uncle Fred and me", 
+                text: "PART 1\nMy uncle Fred likes going to the park and running with his friends.\nMy uncle Fred likes fishing in the lake, watching hockey on TV and eating chocolate cake!\n‘Wow!\nWhat a big fish!\nOh no!\nWhat an old boot!’ says Uncle Fred.\n\nPART 2\nMy uncle Fred loves walking with his ducks and singing in the rain.\nMy uncle Fred loves playing his guitar, wearing very silly clothes and taking photos of his car!\n‘What a beautiful yellow car!\nI love my car!’ says Uncle Fred.\n\nPART 3\n‘I like flying my new kite and I like riding on my bike.’\nI love jumping, one, two, three, and reading scary stories in this tree.\nA-L-P-H-A-B-E-T\nI like watching happy little birds and I love spelling very long words.\nAlphabet!\nWhat a long word!\n\nPART 4\nUncle Fred and I love wearing funny socks and sitting on these rocks.\nWe love finding big white shells and swimming in the sea.\nI love my uncle Fred and my uncle Fred loves me!" 
+            },
+            { 
+                title: "12. Mrs Day’s garden", 
+                text: "PART 1\nMr Gray is a farmer.\nThere are cows, sheep, goats, ducks and chickens on his farm.\nThere’s a dog too!\nMrs Day lives next to Mr Gray’s farm.\nThere are potatoes, onions, beans, peas and two pear trees in her garden.\nMr Gray is going to the town now.\nHe’s going in his truck.\nMrs Day is going to the shops.\nShe’s going on the bus.\n\nPART 2\nOh dear!\nMr Gray’s farm gate is open.\nOh dear!\nMrs Day’s garden gate is open too!\nLook at the cows and sheep!\nLook at the goats and ducks and chickens!\nThey’re running and jumping in Mrs Day’s garden!\n\nPART 3\nThey’re eating her potatoes and her onions and peas.\nThey’re eating her beans and the pears in her trees.\nThey’re wearing her hats and her T-shirts and shirts.\nThey’re wearing her dresses and sweaters and skirts!\n\nPART 4\nBut look!\nHere’s Mrs Day.\nShe’s coming home from the shops.\nMr Gray’s coming home too.\n‘I’m very angry!’ says Mrs Day.\n‘Look at my clothes and look at my trees!’\n‘I’m very sorry!’ says Mr Gray.\n‘Would you like to have dinner with me?’" 
+            },
+            { 
+                title: "13. Classmates", 
+                text: "PART 1\nThe children in Mr Bath’s class are reading stories this morning.\nThey’re reading about a jungle and a zoo.\nThe monster in Mr Bath’s class isn’t reading stories this morning.\nIt’s painting suns and stars on Anna’s shoe!\n\nPART 2\nThe children in Mr Bath’s class are doing lots of sports now.\nThey’re playing soccer, tennis or baseball.\nThe monster from Mr Bath’s classroom isn’t doing sport now.\nIt’s drawing funny faces on the wall!\nThe children in Mr Bath’s class are going home now.\nThey’re getting their tablets and bags and books and pens.\nThe monster in Mr Bath’s class isn’t going home now.\nIt lives behind the door of classroom ten!\n\nPART 3\nMr Bath can’t see the monster.\nBut the children in his class can!\nThey whisper, ‘Now, BE GOOD!’ and wave goodbye.\nBut the monster isn’t listening.\nIt’s playing the piano!\nThey love their friend, the monster.\n‘So do I!’" 
+            },
+            { 
+                title: "14. I want that game!", 
+                text: "PART 1\nTom is watching television at home this evening.\nThree other children, Sue, Lucy and Bill, are watching TV in their homes too.\n‘I want… that game!’\nThe four children have a lot of computer games BUT …\n‘I want that game!’ they all say to their parents.\n\nPART 2\nTom’s father has a helicopter.\nIn the morning, Tom says, ‘Please fly me to Computer Fun in Candy Street, Dad!\nI want that game!’\n‘OK,’ Tom’s father says.\n‘Jump in!’\nSue’s sister is getting on her motorbike.\n‘Can you take me to Computer Fun in Candy Street, please?\nI want that game!’ she says.\n‘OK!’ says Sue’s sister.\n\nPART 3\nLucy runs to the bus.\n‘Can you drive me to Computer Fun in Candy Street?’ she asks.\n‘I want that game!’\n‘OK!’ says the bus driver.\nBill phones his aunt.\n‘Can you take me to Computer Fun in Candy Street in your lorry?’ he asks.\n‘I want that game!’\n‘OK,’ says his aunt.\nSue, Tom, Lucy and Bill are in the store now.\n‘We’ve only got ONE game now,’ says the man in the store.\n‘I want it!’ says Sue.\n‘Me too!’ says Tom.\n‘So do I!’ says Lucy.\n‘And me!’ says Bill.\nHe takes the game.\n‘It’s mine now!’ he says.\n\nPART 4\nOne little girl is crying.\n‘My friends have got a lot of computer games.\nBut I have no computer games.\nCan I have that game, please?’\nBill looks at the little girl.\nSue, Tom and Lucy look at her too.\n‘Yes!’ says Sue.\n‘Don’t cry.’\nThen Sue looks at Tom.\n‘Yes!’ says Tom.\n‘Don’t worry.’\nThen Tom looks at Lucy.\n‘Yes!’ says Lucy.\n‘Don’t be sad.’\nThen Lucy looks at Bill.\nBill smiles and gives the game to the little girl.\n‘Here you are!’ he says.\n‘It’s not ours.\nIt’s yours now.\nHave fun!’\nThe little girl is really happy.\n‘Thanks!’ she says.\nSue, Tom, Lucy and Bill are happy too." 
+            },
+            { 
+                title: "15. Monkey beach", 
+                text: "PART 1\nEva lives next to Monkey Beach.\nShe’s sitting on the sand there today.\nShe has some lime juice to drink.\nShe has a kiwi and some mangoes to eat.\nShe has her guitar to play and her tablet too.\n\nPART 2\nEva’s singing a song.\nShe waves to Miss Board.\n‘Hello, Eva!’ says Miss Board.\n‘Are you having fun?’\n‘Yes, I am, thanks!’\n‘Good!\nIs that a monkey behind you?’\n‘A monkey?’ says Eva.\n‘No!\nBye, Miss Board!’\nEva’s taking photos now.\nShe sees Mr Page.\n‘Hi, Eva!’ says Mr Page.\n‘You’ve got a very happy smile on your face!’\n‘Yes, I have.\nWell, it’s a beautiful day!’\n‘Yes, it is, Eva!\nThere’s a monkey behind you!\nDo you know that?’\n‘A monkey?\nBehind me?\nHa ha!’ says Eva.\n‘Goodbye, Mr Page!’\n\nPART 3\nEva’s hitting her ball with her new bat now.\nEva smiles at Mrs Short.\n‘Good morning, Eva!’ says Mrs Short.\n‘How are you?’\n‘Really great, thank you!’\n‘Fantastic!\nHave you got a pet monkey now, then?’\n‘A pet monkey?\nNo, I haven’t!’ answers Eva.\n‘See you, Mrs Short!’\nEva’s sitting on the sand again, now.\n‘Right!\nWhere’s my tablet?’ she says.\n\nPART 4\n‘Oh!\nThere it is!\nHi, Mr Monkey!’ Eva says.\nThe monkey smiles and gives Eva her tablet and a coconut!\n‘My tablet and a coconut?\nFor me?\nThank you,’ Eva says and claps her hands.\n‘Sing a happy song.\nBe happy!\nBe happy!’\n‘Enjoy your fruit, Mr Monkey, and enjoy my song too,’ Eva laughs." 
+            },
+            { 
+                title: "16. Winners!", 
+                text: "PART 1\nToday, we’re playing basketball with The Five Suns.\nThey’re fantastic!\nAlice, Dan and Sam can run very fast.\nAnd Matt and Pat are very tall.\nWatch them go!\nOh, wow!\nThey can really throw that ball!\nRight!\nLet’s start this game!\nWe’re running and jumping and bouncing and watching.\nWe’re stopping and starting.\nWe’re throwing and catching.\nWhat’s the score?\nOh no!\nWe’ve got three and they’ve got four.\n\nPART 2\n‘Throw it to Kim!’ Jill says.\n‘Run, run!’ Jim says.\n‘Catch!’ Kim says to me.\n‘Now bounce it, bounce it and run, run, run!\nOh, well done!\nIt’s in the net!’\n\nPART 3\nWhat’s the score now?\nHooray!\nWe’ve got five and they’ve got four.\nWe’re the winners!\nNow our team is smiling.\nCan you jump and run fast too?\nThe Five Stars are very happy now.\n‘We’re all winners.’\nSo are you!" 
+            }
+        ];
+
+        const buttonList = document.getElementById('button-list');
+        const readingBox = document.getElementById('reading-box');
+        const synth = window.speechSynthesis;
+        let preferredVoice = null;
+
+        function setPreferredVoice() {
+            const voices = synth.getVoices();
+            preferredVoice = voices.find(v => v.lang === 'en-US' && (v.name.includes('Google') || v.name.includes('Samantha'))) || 
+                             voices.find(v => v.lang === 'en-US') || 
+                             voices[0];
+        }
+
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = setPreferredVoice;
+        }
+
+        function init() {
+            stories.forEach((story, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'story-btn';
+                btn.innerText = story.title;
+                btn.onclick = () => loadStory(index);
+                buttonList.appendChild(btn);
+            });
+            loadStory(0);
+            setPreferredVoice();
+        }
+
+        function loadStory(index) {
+            const buttons = document.querySelectorAll('.story-btn');
+            buttons.forEach((btn, i) => btn.classList.toggle('active', i === index));
+
+            readingBox.innerHTML = '';
+            const lines = stories[index].text.split('\n');
+
+            lines.forEach(line => {
+                if (line.trim() === "") {
+                    readingBox.appendChild(document.createElement('br'));
+                    return;
+                }
+                const lineDiv = document.createElement('div');
+                const parts = line.split(/(\s+)/); 
+
+                parts.forEach(part => {
+                    if (part.trim() === "") {
+                        lineDiv.appendChild(document.createTextNode(part));
+                    } else {
+                        const span = document.createElement('span');
+                        span.className = 'word';
+                        span.innerText = part;
+
+                        // Logic to handle PC vs Mobile
+                        let lastTap = 0;
+                        span.addEventListener('touchend', function(e) {
+                            const currentTime = new Date().getTime();
+                            const tapLength = currentTime - lastTap;
+                            if (tapLength < 300 && tapLength > 0) {
+                                // Double tap detected
+                                speak(part, span);
+                                e.preventDefault();
+                            }
+                            lastTap = currentTime;
+                        });
+
+                        span.addEventListener('click', function(e) {
+                            // Only trigger on click if it's NOT a touch device
+                            if (e.pointerType !== 'touch') {
+                                speak(part, span);
+                            }
+                        });
+
+                        lineDiv.appendChild(span);
+                    }
+                });
+                readingBox.appendChild(lineDiv);
+            });
+            readingBox.scrollTop = 0;
+        }
+
+        function speak(word, element) {
+            document.querySelectorAll('.word.playing').forEach(el => el.classList.remove('playing'));
+            synth.cancel();
+
+            const cleanWord = word.replace(/[.,!?;:“”]/g, "");
+            const utterance = new SpeechSynthesisUtterance(cleanWord);
+
+            utterance.rate = 0.65; 
+            utterance.pitch = 1.1;
+
+            if (preferredVoice) {
+                utterance.voice = preferredVoice;
+            } else {
+                utterance.lang = 'en-US';
+            }
+
+            utterance.onstart = () => element.classList.add('playing');
+            utterance.onend = () => element.classList.remove('playing');
+
+            synth.speak(utterance);
+        }
+
+        init();
+    </script>
+</body>
+</html>
